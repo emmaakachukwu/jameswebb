@@ -1,14 +1,13 @@
+require_relative '../client'
+
 module Webb
   module Platform
     class Base
-      attr_reader :url
+      attr_reader :url, :client
 
       def initialize url
         @url = url
-      end
-
-      def search text
-        puts text
+        @client = Webb::Client.new self.class::BASE_URL, headers: self.class::HEADERS
       end
 
     end
