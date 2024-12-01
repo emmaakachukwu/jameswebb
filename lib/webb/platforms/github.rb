@@ -1,5 +1,5 @@
 module Webb
-  module SourceControl
+  module Platform
     class Github < Base
       #
     end

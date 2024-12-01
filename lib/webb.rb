@@ -1,6 +1,6 @@
 require 'uri/http'
 require_relative 'webb/option'
-require_relative 'webb/source_control'
+require_relative 'webb/platform'
 
 module Webb
   class << self
@@ -21,7 +21,7 @@ module Webb
     def source_control host
       case host
       when /github/
-        Webb::SourceControl::Github
+        Webb::Platform::Github
       end
     end
   end

@@ -1,5 +1,5 @@
 module Webb
-  module SourceControl
+  module Platform
     class Base
       attr_reader :url
 
@@ -10,6 +10,7 @@ module Webb
       def search text
         puts text
       end
+
     end
   end
 end
