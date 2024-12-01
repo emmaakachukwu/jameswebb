@@ -1,7 +1,20 @@
 module Webb
   module Platform
     class Github < Base
-      #
+      BASE_URL = 'https://api.github.com/'
+
+      API_VERSION = '2022-11-28'
+
+      USER = ENV['GITHUB_USER']
+
+      HEADERS = {
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': API_VERSION,
+        'User-Agent': USER
+      }
+
+      def search text
+      end
     end
   end
 end
