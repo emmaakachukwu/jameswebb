@@ -14,7 +14,17 @@ module Webb
       }
 
       def search text
+        repository_files.each do |file|
+          puts file[:name]
+        end
       end
+
+      private
+
+      def repository_files
+        request "repos/#{path}/contents"
+      end
+
     end
   end
 end

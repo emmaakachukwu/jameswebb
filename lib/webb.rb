@@ -5,12 +5,12 @@ require_relative 'webb/platform'
 module Webb
   class << self
     def run
-      options = Webb::Option.parse ARGV
+      options = Option.parse ARGV
       search_text = ARGV.first
 
-      host = source_control_host options[:url]
-      sc = source_control host
-      sc_object = sc.new options[:url]
+      uri = URI.parse options[:url]
+      sc = platform uri.host
+      sc_object = sc.new uri.path
       sc_object.search search_text
     end
 
@@ -18,10 +18,10 @@ module Webb
       URI.parse(url).host
     end
 
-    def source_control host
+    def platform host
       case host
       when /github/
-        Webb::Platform::Github
+        Platform::Github
       end
     end
   end
