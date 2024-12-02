@@ -22,7 +22,7 @@ module Webb
       private
 
       def repository_files
-        request "repos/#{path}/contents"
+        request "repos/#{url_path}/contents"
       end
 
     end

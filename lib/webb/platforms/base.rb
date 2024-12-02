@@ -5,10 +5,10 @@ require_relative '../errors/http_error'
 module Webb
   module Platform
     class Base
-      attr_reader :path, :client
+      attr_reader :url_path, :client
 
-      def initialize path
-        @path = strip_slashes path
+      def initialize url_path
+        @url_path = strip_slashes url_path
         @client = Client.new self.class::BASE_URL, headers: self.class::HEADERS
       end
 
@@ -18,11 +18,11 @@ module Webb
         string.gsub(/\A\/|\/\z/, '')
       end
 
-      def request url_path
-        response = client.get url_path
+      def request path
+        response = client.get path
 
         unless response.is_a? Net::HTTPSuccess
-          raise HTTPError, "#{path}: #{response.message}"
+          raise HTTPError, "#{url_path}: #{response.message}"
         end
 
         JSON.parse response.body, symbolize_names: true
