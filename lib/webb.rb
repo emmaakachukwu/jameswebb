@@ -9,14 +9,12 @@ module Webb
       search_text = ARGV.first
 
       uri = URI.parse options[:url]
-      sc = platform uri.host
-      sc_object = sc.new uri.path
+      host_platform = platform uri.host
+      sc_object = host_platform.new uri.path
       sc_object.search search_text
     end
 
-    def source_control_host url
-      URI.parse(url).host
-    end
+    private
 
     def platform host
       case host

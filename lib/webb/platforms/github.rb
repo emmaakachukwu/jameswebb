@@ -21,8 +21,8 @@ module Webb
 
       private
 
-      def repository_files
-        request "repos/#{url_path}/contents"
+      def repository_files path: ''
+        request "repos/#{url_path}/contents/#{path}"
       end
 
     end
