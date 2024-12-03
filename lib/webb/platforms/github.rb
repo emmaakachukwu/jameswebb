@@ -21,7 +21,7 @@ module Webb
           file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
             { file: resource.path, line:, content: } if content.downcase.include? text
           end
-        end
+        end.flatten.map { |result| SearchResult.new(**result) }
       end
 
       private

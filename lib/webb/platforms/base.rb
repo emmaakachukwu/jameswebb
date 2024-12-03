@@ -1,6 +1,7 @@
 require 'json'
 require_relative '../client'
 require_relative '../resource'
+require_relative '../search_result'
 require_relative '../errors/http_error'
 
 module Webb
