@@ -7,8 +7,11 @@ module Webb
 
       USER = ENV['GITHUB_USER']
 
+      TOKEN = ENV['GITHUB_TOKEN']
+
       HEADERS = {
         'Accept': 'application/vnd.github+json',
+        'Authorization': "Bearer #{TOKEN}",
         'X-GitHub-Api-Version': API_VERSION,
         'User-Agent': USER
       }
