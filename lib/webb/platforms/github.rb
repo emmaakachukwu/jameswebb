@@ -1,20 +1,18 @@
+require 'octokit'
+require 'base64'
+
+Sawyer::Resource.class_eval do
+  def is_file?
+    type == 'blob'
+  end
+end
+
 module Webb
   module Platform
     class Github < Base
-      BASE_URL = 'https://api.github.com/'
-
-      API_VERSION = '2022-11-28'
-
       USER = ENV['GITHUB_USER']
 
       TOKEN = ENV['GITHUB_TOKEN']
-
-      HEADERS = {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': "Bearer #{TOKEN}",
-        'X-GitHub-Api-Version': API_VERSION,
-        'User-Agent': USER
-      }
 
       def search text
         repository_files.filter_map do |resource|
@@ -22,22 +20,24 @@ module Webb
             { file: resource.path, line:, content: } if content.downcase.include? text
           end
         end.flatten.map { |result| SearchResult.new(**result) }
+      rescue Octokit::Error => e
+        raise HTTPError, e
+      end
+
+      def client
+        @client ||= Octokit::Client.new(access_token: TOKEN, user_agent: USER)
       end
 
       private
 
       def repository_files
-        response = request "repos/#{url_path}/git/trees/#{ref}?recursive=true"
-        response[:tree].map do |file|
-          Resource.new(**file.slice(:path, :type, :sha, :size))
-        end.select { |resource| resource.is_file? }
+        tree = @client.tree(@url_path, @ref, recursive: true)
+        tree.tree.select(&:is_file?)
       end
 
       def file_content file_sha
-        request(
-          "repos/#{url_path}/git/blobs/#{file_sha}",
-          headers: { 'Accept': 'application/vnd.github.raw+json' }
-        )
+        blob = @client.blob(@url_path, file_sha)
+        Base64.decode64(blob.content)
       end
 
     end

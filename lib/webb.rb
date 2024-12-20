@@ -11,8 +11,8 @@ module Webb
 
       uri = URI.parse options[:url]
       host_platform = platform uri.host
-      sc_object = host_platform.new uri.path, options[:ref]
-      results = sc_object.search search_text
+      source_control_object = host_platform.new uri.path, ref: options[:ref]
+      results = source_control_object.search search_text
       show_results results
     end
 

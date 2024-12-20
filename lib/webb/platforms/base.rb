@@ -1,18 +1,14 @@
 require 'json'
-require_relative '../client'
-require_relative '../resource'
 require_relative '../search_result'
 require_relative '../errors/http_error'
 
 module Webb
   module Platform
     class Base
-      attr_reader :url_path, :ref, :client
-
-      def initialize url_path, ref
+      def initialize url_path, ref: nil
         @url_path = strip_slashes url_path
-        @ref = ref
-        @client = Client.new self.class::BASE_URL, headers: self.class::HEADERS
+        @ref = ref || 'main'
+        @client = client
       end
 
       private
