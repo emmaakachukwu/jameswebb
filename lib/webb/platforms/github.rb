@@ -17,11 +17,8 @@ module Webb
       def search text
         repository_files.each do |resource|
           matches = file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
-            SearchResult.new(
-              file: resource.path,
-              line:,
-              content:
-            ) if content.downcase.include? text
+            content_case, text_case = @ignore_case ? [content.downcase, text.downcase] : [content, text]
+            SearchResult.new(file: resource.path, line:, content: ) if content_case.include? text_case
           end
           yield resource.path, matches
         end

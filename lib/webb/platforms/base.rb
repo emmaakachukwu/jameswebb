@@ -5,9 +5,10 @@ require_relative '../errors/http_error'
 module Webb
   module Platform
     class Base
-      def initialize url_path, ref: nil
+      def initialize url_path, ref: nil, ignore_case: nil
         @url_path = strip_slashes url_path
         @ref = ref || 'main'
+        @ignore_case = ignore_case || false
         @client = client
       end
 

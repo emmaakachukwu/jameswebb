@@ -12,7 +12,7 @@ module Webb
 
       uri = URI.parse options[:url]
       host_platform = platform uri.host
-      source_control_object = host_platform.new uri.path, ref: options[:ref]
+      source_control_object = host_platform.new uri.path, ref: options[:ref], ignore_case: options[:ignore_case]
       source_control_object.search search_text, &method(:show_results)
     rescue StandardError, Interrupt => e
       handle_error e

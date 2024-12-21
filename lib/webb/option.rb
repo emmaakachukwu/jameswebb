@@ -22,6 +22,11 @@ module Webb
           opts.on('--ref REF', 'ref object to search in; required if URL is a repository') do |ref|
             options_hash[:ref] = ref
           end
+
+          opts.on('-i', '--ignore-case', TrueClass,
+          'perform case insensitive search; search is case sensitive by default') do |ignore_case|
+            options_hash[:ignore_case] = ignore_case
+          end
         end
       end
     end
