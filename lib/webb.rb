@@ -12,8 +12,7 @@ module Webb
       uri = URI.parse options[:url]
       host_platform = platform uri.host
       source_control_object = host_platform.new uri.path, ref: options[:ref]
-      results = source_control_object.search search_text
-      show_results results
+      source_control_object.search search_text, &method(:show_results)
     end
 
     private
@@ -25,17 +24,14 @@ module Webb
       end
     end
 
-    def show_results results
-      processed_files = []
-      results.each do |result|
-        unless processed_files.include? result.file
-          Display.log "\n" unless processed_files.empty?
-          Display.log "results in #{result.file}"
-          processed_files << result.file
-        end
+    def show_results file_path, results
+      return if results.empty?
 
+      Display.log "results in #{file_path}"
+      results.each do |result|
         Display.log "#{result.line}. #{result.content}"
       end
+      Display.log "\n"
     end
   end
 end
