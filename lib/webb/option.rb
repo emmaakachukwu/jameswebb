@@ -1,4 +1,5 @@
 require 'optparse'
+require 'optparse/uri'
 
 module Webb
   class Option
@@ -15,11 +16,11 @@ module Webb
         OptionParser.new do |opts|
           opts.banner = 'Usage: webb [args] <search text>'
 
-          opts.on('-u URL', '--url URL', 'link to the source control group') do |url|
+          opts.on('-u URL', '--url URL', URI, 'link to the source control group') do |url|
             options_hash[:url] = url
           end
 
-          opts.on('--ref REF', 'ref object to search in; required if URL is a repository') do |ref|
+          opts.on('--ref REF', String, 'ref object to search in; required if URL is a repository') do |ref|
             options_hash[:ref] = ref
           end
 
