@@ -15,13 +15,12 @@ module Webb
       TOKEN = ENV['GITHUB_TOKEN']
 
       def search text
-        repository_files.each do |resource|
-          matches = file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
+        repository_files.filter_map do |resource|
+          file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
             content_case, text_case = @ignore_case ? [content.downcase, text.downcase] : [content, text]
             SearchResult.new(file: resource.path, line:, content: ) if content_case.include? text_case
           end
-          yield resource.path, matches
-        end
+        end.flatten
       rescue Octokit::Error => e
         raise HTTPError, e
       end
