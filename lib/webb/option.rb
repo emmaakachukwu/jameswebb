@@ -17,6 +17,8 @@ module Webb
           opts.banner = 'Usage: webb [args] <search text>'
 
           opts.on('-u URL', '--url URL', URI, 'link to the source control group') do |url|
+            raise OptionParser::InvalidArgument unless url.is_a? URI::HTTP
+
             options_hash[:url] = url
           end
 
