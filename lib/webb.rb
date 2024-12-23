@@ -13,11 +13,12 @@ module Webb
       host_platform = platform uri.host
       source_control_object = host_platform.new(
         uri.path,
+        search_text,
         ref: options[:ref],
         type: options[:type],
         ignore_case: options[:ignore_case]
       )
-      results = source_control_object.search search_text
+      results = source_control_object.search
       display_results results
     rescue StandardError, Interrupt => e
       handle_error e

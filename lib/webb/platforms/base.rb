@@ -9,8 +9,9 @@ module Webb
 
       DEFAULT_SEARCH_TYPE = :repo
 
-      def initialize url_path, ref: nil, type: nil, ignore_case: nil
+      def initialize url_path, search_text, ref: nil, type: nil, ignore_case: nil
         @url_path = strip_slashes url_path
+        @search_text = search_text
         @ref = ref || DEFAULT_REF
         @ignore_case = ignore_case || false
         @type = type || DEFAULT_SEARCH_TYPE

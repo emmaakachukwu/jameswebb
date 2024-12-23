@@ -14,9 +14,10 @@ module Webb
 
       TOKEN = ENV['GITHUB_TOKEN']
 
-      def search text
+      def search
         case @type
-        when :repo then repo_search text
+        when :repo then repo_search
+        when :org then org_search
         end
       rescue Octokit::Error => e
         raise HTTPError, e
@@ -28,15 +29,27 @@ module Webb
 
       private
 
-      def repo_search text
+      def org_search
+        organization_repos.flat_map do |repo|
+          @url_path = repo.full_name
+          @ref = repo.default_branch
+          repo_search
+        end
+      end
+
+      def repo_search
         repository_files.filter_map do |resource|
           file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
             content_case, text_case = @ignore_case ?
-              [content.downcase, text.downcase] :
-              [content, text]
+              [content.downcase, @search_text.downcase] :
+              [content, @search_text]
             SearchResult.new(file: resource.path, line:, content: ) if content_case.include? text_case
           end
         end.flatten
+      end
+
+      def organization_repos
+        @client.org_repos(@url_path)
       end
 
       def repository_files
