@@ -3,6 +3,8 @@ require 'optparse/uri'
 
 module Webb
   class Option
+    VALID_TYPES = %i[repo org]
+
     class << self
       def parse args
         options = {}
@@ -20,6 +22,11 @@ module Webb
             raise OptionParser::InvalidArgument unless url.is_a? URI::HTTP
 
             options_hash[:url] = url
+          end
+
+          opts.on('-t SEARCH_TYPE', '--type SEARCH_TYPE', VALID_TYPES,
+          "type of search; select from #{VALID_TYPES.join(', ')}; defaults to repo") do |type|
+            options_hash[:type] = type
           end
 
           opts.on('--ref REF', String, 'ref object to search in; required if URL is a repository') do |ref|
