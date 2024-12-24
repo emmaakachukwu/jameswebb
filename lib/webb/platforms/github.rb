@@ -16,7 +16,9 @@ module Webb
 
       def search
         case @type
-        when :repo then repo_search
+        when :repo then
+          @repo_path = @url_path
+          repo_search
         when :org then org_search
         end
       rescue Octokit::Error => e
@@ -31,7 +33,7 @@ module Webb
 
       def org_search
         organization_repos.flat_map do |repo|
-          @url_path = repo.full_name
+          @repo_path = repo.full_name
           @ref = repo.default_branch
           repo_search
         end
@@ -43,7 +45,11 @@ module Webb
             content_case, text_case = @ignore_case ?
               [content.downcase, @search_text.downcase] :
               [content, @search_text]
-            SearchResult.new(file: resource.path, line:, content: ) if content_case.include? text_case
+            SearchResult.new(
+              line:,
+              content:,
+              file: relative_path(resource.path)
+            ) if content_case.include? text_case
           end
         end.flatten
       end
@@ -53,13 +59,17 @@ module Webb
       end
 
       def repository_files
-        tree = @client.tree(@url_path, @ref, recursive: true)
+        tree = @client.tree(@repo_path, @ref, recursive: true)
         tree.tree.select(&:is_file?)
       end
 
       def file_content file_sha
-        blob = @client.blob(@url_path, file_sha)
+        blob = @client.blob(@repo_path, file_sha)
         Base64.decode64(blob.content)
+      end
+
+      def relative_path file_path
+        "#{@repo_path}/#{file_path}".delete_prefix("#{@url_path}/")
       end
 
     end
