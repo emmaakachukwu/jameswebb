@@ -40,7 +40,7 @@ module Webb
       end
 
       def repo_search
-        repository_files.filter_map do |resource|
+        repository_files.flat_map do |resource|
           file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
             content_case, text_case = @ignore_case ?
               [content.downcase, @search_text.downcase] :
@@ -51,7 +51,7 @@ module Webb
               file: relative_path(resource.path)
             ) if content_case.include? text_case
           end
-        end.flatten
+        end
       end
 
       def organization_repos
