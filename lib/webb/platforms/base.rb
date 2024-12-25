@@ -22,7 +22,7 @@ module Webb
       def search
         case @type
         when :repo then repo_search
-        when :org then org_search
+        when :namespace then namespace_search
         end
       rescue *http_exceptions => e
         raise HTTPError, e

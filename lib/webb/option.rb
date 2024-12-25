@@ -3,7 +3,7 @@ require 'optparse/uri'
 
 module Webb
   class Option
-    VALID_TYPES = %i[repo org]
+    VALID_TYPES = %i[repo namespace]
 
     class << self
       def parse args

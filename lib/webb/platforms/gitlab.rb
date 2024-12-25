@@ -23,15 +23,15 @@ module Webb
 
       private
 
-      def org_search
-        org_repos.flat_map do |repo|
+      def namespace_search
+        namespace_repos.flat_map do |repo|
           @repo_path = repo.path_with_namespace
           @ref = repo.default_branch
           repo_search
         end
       end
 
-      def org_repos
+      def namespace_repos
         @client.group_projects(
           @url_path,
           include_subgroups: true,

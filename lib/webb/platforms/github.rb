@@ -20,15 +20,15 @@ module Webb
 
       private
 
-      def org_search
-        org_repos.flat_map do |repo|
+      def namespace_search
+        namespace_repos.flat_map do |repo|
           @repo_path = repo.full_name
           @ref = repo.default_branch
           repo_search
         end
       end
 
-      def org_repos
+      def namespace_repos
         @client.org_repos(@url_path)
       end
 
