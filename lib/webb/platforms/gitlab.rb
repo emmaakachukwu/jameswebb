@@ -19,6 +19,7 @@ module Webb
         when :repo then
           @repo_path = @url_path
           repo_search
+        when :org then org_search
         end
       rescue ::Gitlab::Error::ResponseError => e
         raise HTTPError, e
@@ -32,6 +33,22 @@ module Webb
       end
 
       private
+
+      def org_search
+        organization_repos.flat_map do |repo|
+          @repo_path = repo.path_with_namespace
+          @ref = repo.default_branch
+          repo_search
+        end
+      end
+
+      def organization_repos
+        @client.group_projects(
+          @url_path,
+          include_subgroups: true,
+          simple: true
+        )
+      end
 
       def repo_search
         repository_files.flat_map do |resource|
