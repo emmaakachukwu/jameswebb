@@ -28,8 +28,8 @@ module Webb
 
     def platform host
       case host
-      when /github/
-        Platform::Github
+      when /github/ then Platform::Github
+      when /gitlab/ then Platform::Gitlab
       end
     end
 
