@@ -9,7 +9,7 @@ module Webb
       def parse args
         options = {}
         parser(options).parse! args
-        options
+        new options
       end
 
       private
@@ -39,6 +39,17 @@ module Webb
           end
         end
       end
+    end
+
+    def initialize options
+      options.each do |k, v|
+        instance_variable_set "@#{k}", v
+        self.class.attr_reader k
+      end
+    end
+
+    def method_missing method_name, *args
+      nil
     end
   end
 end

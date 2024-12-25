@@ -8,15 +8,14 @@ module Webb
     def run
       options = Option.parse ARGV
       search_text = ARGV.first
-
-      uri = options[:url]
+      uri = options.url
       host_platform = platform uri.host
       source_control_object = host_platform.new(
         uri.path,
         search_text,
-        ref: options[:ref],
-        type: options[:type],
-        ignore_case: options[:ignore_case]
+        ref: options.ref,
+        type: options.type,
+        ignore_case: options.ignore_case
       )
       results = source_control_object.search
       display_results results
