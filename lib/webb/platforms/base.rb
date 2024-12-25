@@ -11,11 +11,21 @@ module Webb
 
       def initialize url_path, search_text, ref: nil, type: nil, ignore_case: nil
         @url_path = strip_slashes url_path
+        @repo_path = @url_path
         @search_text = search_text
         @ref = ref || DEFAULT_REF
         @ignore_case = ignore_case || false
         @type = type || DEFAULT_SEARCH_TYPE
         @client = client
+      end
+
+      def search
+        case @type
+        when :repo then repo_search
+        when :org then org_search
+        end
+      rescue *http_exceptions => e
+        raise HTTPError, e
       end
 
       private
@@ -34,6 +44,14 @@ module Webb
         JSON.parse response.body, symbolize_names: true
       rescue JSON::ParserError
         response.body
+      end
+
+      def relative_path file_path
+        "#{@repo_path}/#{file_path}".delete_prefix("#{@url_path}/")
+      end
+
+      def http_exceptions
+        []
       end
     end
   end

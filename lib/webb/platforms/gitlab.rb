@@ -14,17 +14,6 @@ module Webb
 
       TOKEN = ENV['GITLAB_TOKEN']
 
-      def search
-        case @type
-        when :repo then
-          @repo_path = @url_path
-          repo_search
-        when :org then org_search
-        end
-      rescue ::Gitlab::Error::ResponseError => e
-        raise HTTPError, e
-      end
-
       def client
         @client ||= ::Gitlab.client(
           endpoint: BASE_URL,
@@ -35,14 +24,14 @@ module Webb
       private
 
       def org_search
-        organization_repos.flat_map do |repo|
+        org_repos.flat_map do |repo|
           @repo_path = repo.path_with_namespace
           @ref = repo.default_branch
           repo_search
         end
       end
 
-      def organization_repos
+      def org_repos
         @client.group_projects(
           @url_path,
           include_subgroups: true,
@@ -75,8 +64,8 @@ module Webb
         Base64.decode64(file.content)
       end
 
-      def relative_path file_path
-        "#{@repo_path}/#{file_path}".delete_prefix("#{@url_path}/")
+      def http_exceptions
+        [::Gitlab::Error::ResponseError]
       end
     end
   end
