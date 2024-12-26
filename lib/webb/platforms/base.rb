@@ -9,18 +9,28 @@ module Webb
 
       DEFAULT_SEARCH_TYPE = :repo
 
+      DEFAULT_IGNORE_CASE = false
+
+      attr_reader :url_path,
+                  :repo_path,
+                  :search_text,
+                  :ref,
+                  :ignore_case,
+                  :type,
+                  :client
+
       def initialize url_path, search_text, ref: nil, type: nil, ignore_case: nil
         @url_path = strip_slashes url_path
         @repo_path = @url_path
         @search_text = search_text
         @ref = ref || DEFAULT_REF
-        @ignore_case = ignore_case || false
+        @ignore_case = ignore_case || DEFAULT_IGNORE_CASE
         @type = type || DEFAULT_SEARCH_TYPE
-        @client = client
+        @client = configure_client
       end
 
       def search
-        case @type
+        case type
         when :repo then repo_search
         when :namespace then namespace_search
         end
@@ -29,6 +39,10 @@ module Webb
       end
 
       private
+
+      def configure_client
+        nil
+      end
 
       def strip_slashes string
         string.gsub(/\A\/|\/\z/, '')
@@ -47,7 +61,7 @@ module Webb
       end
 
       def relative_path file_path
-        "#{@repo_path}/#{file_path}".delete_prefix("#{@url_path}/")
+        "#{repo_path}/#{file_path}".delete_prefix("#{url_path}/")
       end
 
       def http_exceptions

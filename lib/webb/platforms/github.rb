@@ -14,8 +14,8 @@ module Webb
 
       TOKEN = ENV['GITHUB_TOKEN']
 
-      def client
-        @client ||= Octokit::Client.new(access_token: TOKEN, user_agent: USER)
+      def configure_client
+        Octokit::Client.new(access_token: TOKEN, user_agent: USER)
       end
 
       private
@@ -29,15 +29,15 @@ module Webb
       end
 
       def namespace_repos
-        @client.org_repos(@url_path)
+        client.org_repos(url_path)
       end
 
       def repo_search
         repository_files.flat_map do |resource|
           file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
-            content_case, text_case = @ignore_case ?
-              [content.downcase, @search_text.downcase] :
-              [content, @search_text]
+            content_case, text_case = ignore_case ?
+              [content.downcase, search_text.downcase] :
+              [content, search_text]
             SearchResult.new(
               line:,
               content:,
@@ -48,12 +48,12 @@ module Webb
       end
 
       def repository_files
-        tree = @client.tree(@repo_path, @ref, recursive: true)
+        tree = client.tree(repo_path, ref, recursive: true)
         tree.tree.select(&:is_file?)
       end
 
       def file_content file_sha
-        blob = @client.blob(@repo_path, file_sha)
+        blob = client.blob(repo_path, file_sha)
         Base64.decode64(blob.content)
       end
 
