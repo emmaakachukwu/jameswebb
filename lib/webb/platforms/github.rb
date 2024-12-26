@@ -10,15 +10,27 @@ end
 module Webb
   module Platform
     class Github < Base
-      USER = ENV['GITHUB_USER']
-
-      TOKEN = ENV['GITHUB_TOKEN']
+      DEFAULT_USER = 'JamesWebb'
 
       def configure_client
-        Octokit::Client.new(access_token: TOKEN, user_agent: USER)
+        Octokit::Client.new access_token:, user_agent:
       end
 
       private
+
+      def user_agent
+        ENV.fetch 'WEBB_GITHUB_USER', DEFAULT_USER
+      end
+
+      def access_token
+        token = ENV['WEBB_GITHUB_TOKEN']
+        unless token
+          warn "setting `WEBB_GITHUB_TOKEN` increases your rate limit and access to private repositories;\n"\
+            "see https://docs.github.com/rest/using-the-rest-api/rate-limits-for-the-rest-api\n\n"
+        end
+
+        token
+      end
 
       def namespace_search
         namespace_repos.flat_map do |repo|

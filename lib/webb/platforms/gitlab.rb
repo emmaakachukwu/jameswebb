@@ -10,15 +10,26 @@ end
 module Webb
   module Platform
     class Gitlab < Base
-      BASE_URL = 'https://gitlab.com/api/v4'
-
-      TOKEN = ENV['GITLAB_TOKEN']
+      DEFAULT_ENDPOINT = 'https://gitlab.com/api/v4'
 
       def configure_client
-        ::Gitlab.client(endpoint: BASE_URL, private_token: TOKEN)
+        ::Gitlab.client endpoint:, private_token:
       end
 
       private
+
+      def endpoint
+        DEFAULT_ENDPOINT
+      end
+
+      def private_token
+        token = ENV['WEBB_GITLAB_TOKEN']
+        return token if token
+
+        raise MissingCredentials,
+          "Please provide a private_token for Gitlab user via the `WEBB_GITLAB_TOKEN`\n"\
+          "see https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token\n\n"
+      end
 
       def namespace_search
         namespace_repos.flat_map do |repo|
