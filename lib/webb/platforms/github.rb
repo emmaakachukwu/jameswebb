@@ -62,6 +62,9 @@ module Webb
       def repository_files
         tree = client.tree(repo_path, ref, recursive: true)
         tree.tree.select(&:is_file?)
+      rescue Octokit::Conflict
+        # empty repo?
+        []
       end
 
       def file_content file_sha
