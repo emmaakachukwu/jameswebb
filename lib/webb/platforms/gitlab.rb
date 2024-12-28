@@ -16,6 +16,17 @@ module Webb
         ::Gitlab.client endpoint:, private_token:
       end
 
+      def search
+        search_via_api.flat_map do |resource|
+          resource_project = project(resource.project_id)
+          @repo_path = resource_project.path_with_namespace
+          @ref = resource_project.default_branch
+          search_resource resource
+        end
+      rescue *http_exceptions => e
+        raise HTTPError, e
+      end
+
       private
 
       def endpoint
@@ -48,21 +59,10 @@ module Webb
       end
 
       def repo_search
-        repository_files.flat_map do |resource|
-          file_content(resource.path).each_line.filter_map.with_index(1) do |content, line|
-            content_case, text_case = ignore_case ?
-              [content.downcase, search_text.downcase] :
-              [content, search_text]
-            SearchResult.new(
-              line:,
-              content:,
-              file: relative_path(resource.path)
-            ) if content_case.include? text_case
-          end
-        end
+        repo_files.flat_map(&method(:search_resource))
       end
 
-      def repository_files
+      def repo_files
         tree = client.tree(repo_path, ref: ref, recursive: true)
         tree.select(&:is_file?)
       end
@@ -70,6 +70,35 @@ module Webb
       def file_content file_path
         file = client.get_file(repo_path, file_path, ref)
         Base64.decode64(file.content)
+      end
+
+      def search_resource resource
+        file_content(resource.path).each_line.filter_map.with_index(1) do |content, line|
+          content_case, text_case = ignore_case ?
+            [content.downcase, search_text.downcase] :
+            [content, search_text]
+          SearchResult.new(
+            line:,
+            content:,
+            file: relative_path(resource.path)
+          ) if content_case.include? text_case
+        end
+      end
+
+      def search_via_api
+        case type
+        when :repo
+          client.search_in_project(repo_path, 'blobs', search_text, ref)
+        when :namespace
+          client.search_in_group(url_path, 'blobs', search_text)
+        end
+      end
+
+      def project id
+        @projects ||= {}
+        return @projects[id] if @projects.key?(id)
+
+        @projects[id] = client.project id
       end
 
       def http_exceptions
