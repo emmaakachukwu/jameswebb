@@ -48,8 +48,8 @@ RSpec.describe Webb::Platform::Gitlab do
     end
 
     context 'searching through a namespace' do
-      let(:url_path) { 'oauth-xx' }
-      let(:search_text) { 'bundle' }
+      let(:url_path) { 'gitlab-org/creator-pairing/autodevops-examples' }
+      let(:search_text) { 'Auto DevOps' }
       let(:type) { :namespace }
 
       it 'returns an array of search results when results are found' do
