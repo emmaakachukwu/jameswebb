@@ -2,6 +2,7 @@ require_relative 'webb/option'
 require_relative 'webb/platform'
 require_relative 'webb/display'
 require_relative 'webb/errors/http_error'
+require_relative 'webb/errors/missing_credentials'
 
 module Webb
   class << self
@@ -47,7 +48,7 @@ module Webb
     def handle_error error
       case error
       when Interrupt then abort 'Process interrupted; stopping gracefully'
-      when HTTPError then abort error.message
+      when HTTPError, MissingCredentials then abort error.message
       when OptionParser::ParseError then
         Display.log error.message
         abort `webb --help`
