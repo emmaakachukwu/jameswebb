@@ -16,6 +16,18 @@ module Webb
         Octokit::Client.new access_token:, user_agent:
       end
 
+      def search
+        search_response = search_via_api
+        return search_off_api unless search_response.total_count.positive?
+
+        search_response.items.flat_map do |resource|
+          @repo_path = resource.repository.full_name
+          search_resource resource
+        end
+      rescue *http_exceptions => e
+        raise HTTPError, e
+      end
+
       private
 
       def user_agent
@@ -33,9 +45,9 @@ module Webb
       end
 
       def namespace_search
-        namespace_repos.flat_map do |repo|
-          @repo_path = repo.full_name
-          @ref = repo.default_branch
+        namespace_repos.flat_map do |repository|
+          @repo_path = repository.full_name
+          @ref = repository.default_branch
           repo_search
         end
       end
@@ -45,21 +57,10 @@ module Webb
       end
 
       def repo_search
-        repository_files.flat_map do |resource|
-          file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
-            content_case, text_case = ignore_case ?
-              [content.downcase, search_text.downcase] :
-              [content, search_text]
-            SearchResult.new(
-              line:,
-              content:,
-              file: relative_path(resource.path)
-            ) if content_case.include? text_case
-          end
-        end
+        repo_files.flat_map(&method(:search_resource))
       end
 
-      def repository_files
+      def repo_files
         tree = client.tree(repo_path, ref, recursive: true)
         tree.tree.select(&:is_file?)
       rescue Octokit::Conflict
@@ -70,6 +71,37 @@ module Webb
       def file_content file_sha
         blob = client.blob(repo_path, file_sha)
         Base64.decode64(blob.content)
+      end
+
+      def search_resource resource
+        file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
+          content_case, text_case = ignore_case ?
+            [content.downcase, search_text.downcase] :
+            [content, search_text]
+          SearchResult.new(
+            line:,
+            content:,
+            file: relative_path(resource.path)
+          ) if content_case.include? text_case
+        end
+      end
+
+      def search_via_api
+        client.search_code build_query
+      end
+
+      def search_off_api
+        case type
+        when :repo then repo_search
+        when :namespace then namespace_search
+        end
+      end
+
+      def build_query
+        query = "#{search_text} "
+        query += type == :repo ? 'repo' : 'org'
+
+        "#{query}:#{repo_path}"
       end
 
       def http_exceptions

@@ -30,15 +30,6 @@ module Webb
         @client = configure_client
       end
 
-      def search
-        case type
-        when :repo then repo_search
-        when :namespace then namespace_search
-        end
-      rescue *http_exceptions => e
-        raise HTTPError, e
-      end
-
       private
 
       def configure_client
@@ -65,9 +56,6 @@ module Webb
         "#{repo_path}/#{file_path}".delete_prefix("#{url_path}/")
       end
 
-      def http_exceptions
-        []
-      end
     end
   end
 end
