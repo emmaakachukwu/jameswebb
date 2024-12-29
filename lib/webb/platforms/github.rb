@@ -13,7 +13,7 @@ module Webb
       DEFAULT_USER = 'JamesWebb'
 
       def configure_client
-        Octokit::Client.new access_token:, user_agent:
+        Octokit::Client.new access_token:, user_agent:, api_endpoint:
       end
 
       def search
@@ -42,6 +42,10 @@ module Webb
         end
 
         token
+      end
+
+      def api_endpoint
+        ENV['WEBB_GITHUB_ENDPOINT']
       end
 
       def namespace_search

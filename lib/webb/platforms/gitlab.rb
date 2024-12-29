@@ -30,7 +30,7 @@ module Webb
       private
 
       def endpoint
-        DEFAULT_ENDPOINT
+        ENV.fetch 'WEBB_GITLAB_ENDPOINT', DEFAULT_ENDPOINT
       end
 
       def private_token
