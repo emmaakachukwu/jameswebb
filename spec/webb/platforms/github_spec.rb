@@ -6,12 +6,33 @@ RSpec.describe Webb::Platform::Github do
   let(:ref) { 'main' }
   let(:type) { :repo }
   let(:ignore_case) { false }
+  let(:api_env_var) { 'WEBB_GITHUB_ENDPOINT' }
 
   describe '#initialize' do
     context 'creating a github client' do
       it 'uses an Octokit client' do
         github = described_class.new(url_path, search_text)
         expect(github.client).to be_a(Octokit::Client)
+      end
+
+      it "uses the right endpoint when endpoint is set" do
+        endpoint = 'https://api.example.com/'
+        ENV[api_env_var] = endpoint
+        github = described_class.new(url_path, search_text)
+        ENV.delete api_env_var
+
+        expect(github.client.api_endpoint).to eq(endpoint)
+      end
+
+      it 'uses the right endpoint when endpoint is set to nil' do
+        ENV[api_env_var] = nil
+        github = described_class.new(url_path, search_text)
+        expect(github.client.api_endpoint).to eq('https://api.github.com/')
+      end
+
+      it 'uses the right endpoint when endpoint is not set' do
+        github = described_class.new(url_path, search_text)
+        expect(github.client.api_endpoint).to eq('https://api.github.com/')
       end
 
     end

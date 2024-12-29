@@ -6,12 +6,27 @@ RSpec.describe Webb::Platform::Gitlab do
   let(:ref) { 'main' }
   let(:type) { :repo }
   let(:ignore_case) { false }
+  let(:api_env_var) { 'WEBB_GITLAB_ENDPOINT' }
 
   describe '#initialize' do
     context 'creating a gitlab client' do
       it 'uses a Gitlab client' do
         gitlab = described_class.new(url_path, search_text)
         expect(gitlab.client).to be_a(::Gitlab::Client)
+      end
+
+      it "uses the right endpoint when endpoint is set" do
+        endpoint = 'https://example.com'
+        ENV[api_env_var] = endpoint
+        gitlab = described_class.new(url_path, search_text)
+        ENV.delete api_env_var
+
+        expect(gitlab.client.endpoint).to eq(endpoint)
+      end
+
+      it 'uses the right endpoint when endpoint is not set' do
+        github = described_class.new(url_path, search_text)
+        expect(github.client.endpoint).to eq('https://gitlab.com/api/v4')
       end
 
     end
