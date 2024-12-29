@@ -1,7 +1,6 @@
 require 'json'
 require_relative '../search_result'
-require_relative '../errors/http_error'
-require_relative '../errors/missing_credentials'
+require_relative '../error'
 
 module Webb
   module Platform
