@@ -49,7 +49,7 @@ module Webb
       when Interrupt then abort 'Process interrupted; stopping gracefully'
       when Webb::Error then abort error.message
       when OptionParser::ParseError then
-        Display.log error.message
+        Display.error error.message
         abort `webb --help`
       else raise error
       end
