@@ -29,6 +29,13 @@ RSpec.describe Webb::Platform::Gitlab do
         expect(github.client.endpoint).to eq('https://gitlab.com/api/v4')
       end
 
+      it 'raises a Webb::InvalidArgument exception when endpoint URL is invalid' do
+        ENV[api_env_var] = 'endpoint'
+        expect { described_class.new(url_path, search_text) }.to raise_error(
+          Webb::InvalidArgument, "'WEBB_GITLAB_ENDPOINT' value is not a valid URL")
+        ENV.delete api_env_var
+      end
+
     end
 
   end

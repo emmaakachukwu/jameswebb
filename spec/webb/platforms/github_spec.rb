@@ -35,6 +35,13 @@ RSpec.describe Webb::Platform::Github do
         expect(github.client.api_endpoint).to eq('https://api.github.com/')
       end
 
+      it 'raises a Webb::InvalidArgument exception when endpoint URL is invalid' do
+        ENV[api_env_var] = 'endpoint'
+        expect { described_class.new(url_path, search_text) }.to raise_error(
+          Webb::InvalidArgument, "'WEBB_GITHUB_ENDPOINT' value is not a valid URL")
+        ENV.delete api_env_var
+      end
+
     end
 
   end

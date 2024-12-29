@@ -45,7 +45,13 @@ module Webb
       end
 
       def api_endpoint
-        ENV['WEBB_GITHUB_ENDPOINT']
+        env_var = 'WEBB_GITHUB_ENDPOINT'
+        api_url = ENV[env_var]
+        unless api_url.nil? || valid_uri?(api_url)
+          raise InvalidArgument, "'#{env_var}' value is not a valid URL"
+        end
+
+        api_url
       end
 
       def namespace_search

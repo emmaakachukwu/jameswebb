@@ -1,4 +1,5 @@
 require 'json'
+require 'uri'
 require_relative '../search_result'
 require_relative '../error'
 
@@ -53,6 +54,10 @@ module Webb
 
       def relative_path file_path
         "#{repo_path}/#{file_path}".delete_prefix("#{url_path}/")
+      end
+
+      def valid_uri? uri
+        uri.match? URI::DEFAULT_PARSER.make_regexp
       end
 
     end

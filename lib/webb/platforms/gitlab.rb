@@ -30,7 +30,13 @@ module Webb
       end
 
       def endpoint
-        ENV.fetch 'WEBB_GITLAB_ENDPOINT', DEFAULT_ENDPOINT
+        env_var = 'WEBB_GITLAB_ENDPOINT'
+        api_url = ENV.fetch 'WEBB_GITLAB_ENDPOINT', DEFAULT_ENDPOINT
+        unless valid_uri?(api_url)
+          raise InvalidArgument, "'#{env_var}' value is not a valid URL"
+        end
+
+        api_url
       end
 
       def private_token
