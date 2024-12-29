@@ -37,6 +37,12 @@ module Webb
           'perform case insensitive search; search is case sensitive by default') do |ignore_case|
             options_hash[:ignore_case] = ignore_case
           end
+
+          opts.on('-v', '--verbose', TrueClass,
+          'turn on verbose mode; disabled by default') do |verbose|
+            options_hash[:verbose] = verbose
+          end
+
         end
       end
     end

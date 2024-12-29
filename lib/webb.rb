@@ -7,6 +7,7 @@ module Webb
   class << self
     def run
       options = Option.parse ARGV
+      Display.logger.level = log_level options
       search_text = ARGV.first
       uri = options.url
       host_platform = platform uri.host
@@ -41,6 +42,12 @@ module Webb
           processed_files << result.file
         end
         Display.log "#{result.line}. #{result.content}"
+      end
+    end
+
+    def log_level options
+      if options.verbose then Logger::INFO
+      else Logger::WARN
       end
     end
 
