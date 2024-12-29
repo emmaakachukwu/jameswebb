@@ -12,10 +12,6 @@ module Webb
     class Github < Base
       DEFAULT_USER = 'JamesWebb'
 
-      def configure_client
-        Octokit::Client.new access_token:, user_agent:, api_endpoint:
-      end
-
       def search
         search_response = search_via_api
         return search_off_api unless search_response.total_count.positive?
@@ -29,6 +25,10 @@ module Webb
       end
 
       private
+
+      def configure_client
+        Octokit::Client.new access_token:, user_agent:, api_endpoint:
+      end
 
       def user_agent
         ENV.fetch 'WEBB_GITHUB_USER', DEFAULT_USER

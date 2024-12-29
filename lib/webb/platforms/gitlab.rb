@@ -12,10 +12,6 @@ module Webb
     class Gitlab < Base
       DEFAULT_ENDPOINT = 'https://gitlab.com/api/v4'
 
-      def configure_client
-        ::Gitlab.client endpoint:, private_token:
-      end
-
       def search
         search_via_api.flat_map do |resource|
           resource_project = project(resource.project_id)
@@ -28,6 +24,10 @@ module Webb
       end
 
       private
+
+      def configure_client
+        ::Gitlab.client endpoint:, private_token:
+      end
 
       def endpoint
         ENV.fetch 'WEBB_GITLAB_ENDPOINT', DEFAULT_ENDPOINT
