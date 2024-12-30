@@ -13,7 +13,9 @@ module Webb
       DEFAULT_ENDPOINT = 'https://gitlab.com/api/v4'
 
       def search
-        search_via_api.flat_map do |resource|
+        search_via_api.uniq do |resource|
+          "#{resource.project_id}/#{resource.path}/#{resource.ref}"
+        end.flat_map do |resource|
           resource_project = project(resource.project_id)
           @repo_path = resource_project.path_with_namespace
           @ref = resource_project.default_branch
