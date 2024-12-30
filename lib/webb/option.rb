@@ -5,10 +5,13 @@ module Webb
   class Option
     VALID_TYPES = %i[repo namespace]
 
+    REQUIRED_OPTIONS = %i[url]
+
     class << self
       def parse args
         options = {}
         parser(options).parse! args
+        validate_required options
         new options
       end
 
@@ -44,6 +47,11 @@ module Webb
           end
 
         end
+      end
+
+      def validate_required options
+        missing = REQUIRED_OPTIONS - options.keys
+        raise OptionParser::MissingArgument, missing unless missing.empty?
       end
     end
 
