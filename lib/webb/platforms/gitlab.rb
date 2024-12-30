@@ -45,7 +45,7 @@ module Webb
 
         raise MissingCredentials,
           "Please provide a private_token for Gitlab user via the `WEBB_GITLAB_TOKEN`\n"\
-          "see https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token\n\n"
+          "see https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token"
       end
 
       def namespace_search

@@ -41,12 +41,11 @@ module Webb
 
       def access_token
         token = ENV['WEBB_GITHUB_TOKEN']
-        unless token
-          warn "setting `WEBB_GITHUB_TOKEN` increases your rate limit and access to private repositories;\n"\
-            "see https://docs.github.com/rest/using-the-rest-api/rate-limits-for-the-rest-api\n\n"
-        end
+        return token if token
 
-        token
+        raise MissingCredentials,
+          "Please provide a private_token for Github user via the `WEBB_GITHUB_TOKEN`\n"\
+          "see https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
       end
 
       def api_endpoint
