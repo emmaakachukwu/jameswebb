@@ -4,7 +4,7 @@ RSpec.describe Webb::Option do
   let(:short_args) do
     [
       '-u', 'https://example.com/foo/bar',
-      '-i',
+      '-iv',
       '-t', 'repo',
       '--ref', 'main',
       'search text'
@@ -15,6 +15,7 @@ RSpec.describe Webb::Option do
     [
       '--url', 'https://example.com/foo/bar',
       '--ignore-case',
+      '--verbose',
       '--type', 'namespace',
       '--ref', 'dev',
       'search text'
@@ -30,6 +31,7 @@ RSpec.describe Webb::Option do
         expect(options.ignore_case).to eq(true)
         expect(options.type).to eq(:repo)
         expect(options.ref).to eq('main')
+        expect(options.verbose).to be true
       end
 
       it 'parses long form arguments correctly' do
@@ -40,6 +42,12 @@ RSpec.describe Webb::Option do
         expect(options.ignore_case).to eq(true)
         expect(options.type).to eq(:namespace)
         expect(options.ref).to eq('dev')
+        expect(options.verbose).to be true
+      end
+
+      it 'returns nil for an undefined option' do
+        options = described_class.parse(short_args)
+        expect(options.undefined_option).to be nil
       end
 
       it 'leaves the search text as the only value in the argument reference' do
