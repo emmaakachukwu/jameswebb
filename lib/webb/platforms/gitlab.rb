@@ -79,6 +79,8 @@ module Webb
       end
 
       def search_resource resource
+        Display.info "Searching for `#{search_text}` in #{repo_path}/#{ref}:#{resource.path}"
+
         file_content(resource.path).each_line.filter_map.with_index(1) do |content, line|
           content_case, text_case = ignore_case ?
             [content.downcase, search_text.downcase] :
@@ -92,9 +94,11 @@ module Webb
       end
 
       def search_via_api
+        Display.info "Fetching matching files in #{url_path}"
+
         case type
         when :repo
-          client.search_in_project(repo_path, 'blobs', search_text, ref)
+          client.search_in_project(url_path, 'blobs', search_text, ref)
         when :namespace
           client.search_in_group(url_path, 'blobs', search_text)
         end

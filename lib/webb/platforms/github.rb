@@ -14,7 +14,12 @@ module Webb
 
       def search
         search_response = search_via_api
-        return search_off_api unless search_response.total_count.positive?
+        unless search_response.total_count.positive?
+          Display.info "Code in #{url_path} has probably not been indexed;"\
+                     " starting a manual search"
+
+          return search_off_api
+        end
 
         search_response.items.flat_map do |resource|
           @repo_path = resource.repository.full_name
@@ -63,6 +68,7 @@ module Webb
       end
 
       def namespace_repos
+        Display.info "Fetching repositories in namespace: #{url_path}"
         client.org_repos(url_path)
       end
 
@@ -71,10 +77,12 @@ module Webb
       end
 
       def repo_files
+        Display.info "Fetching files in repository: #{repo_path}/#{ref}"
+
         tree = client.tree(repo_path, ref, recursive: true)
         tree.tree.select(&:is_file?)
       rescue Octokit::Conflict
-        # empty repo?
+        Display.info "#{repo_path}/#{ref} is empty; skipping"
         []
       end
 
@@ -84,6 +92,8 @@ module Webb
       end
 
       def search_resource resource
+        Display.info "Searching for `#{search_text}` in #{repo_path}/#{ref}:#{resource.path}"
+
         file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
           content_case, text_case = ignore_case ?
             [content.downcase, search_text.downcase] :
@@ -97,6 +107,7 @@ module Webb
       end
 
       def search_via_api
+        Display.info "Fetching matching files in #{url_path}"
         client.search_code build_query
       end
 
