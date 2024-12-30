@@ -23,6 +23,8 @@ module Webb
         end
       rescue *http_exceptions => e
         raise HTTPError, e
+      rescue SocketError => e
+        raise ConnectionFailed, e
       end
 
       private

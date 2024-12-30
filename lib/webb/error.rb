@@ -6,4 +6,7 @@ module Webb
   class MissingCredentials < Error; end
 
   class InvalidArgument < Error; end
+
+  class ConnectionFailed < Error; end
+
 end

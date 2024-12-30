@@ -27,6 +27,8 @@ module Webb
         end
       rescue *http_exceptions => e
         raise HTTPError, e
+      rescue Faraday::ConnectionFailed => e
+        raise ConnectionFailed, e
       end
 
       private
