@@ -36,6 +36,15 @@ RSpec.describe Webb::Platform::Gitlab do
         ENV.delete api_env_var
       end
 
+      it 'raises a Webb::MissingCredentials exception when no token is set' do
+        ENV.delete 'WEBB_GITLAB_TOKEN'
+        expect { described_class.new(url_path, search_text) }.to raise_error(
+          Webb::MissingCredentials,
+          "Please provide a private_token for Gitlab user via the `WEBB_GITLAB_TOKEN`\n"\
+          "see https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token"
+        )
+      end
+
     end
 
   end
