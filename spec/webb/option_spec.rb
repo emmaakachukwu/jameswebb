@@ -85,6 +85,11 @@ RSpec.describe Webb::Option do
         expect { described_class.parse(['--invalid_option']) }
           .to raise_error(OptionParser::InvalidOption)
       end
+
+      it 'raises OptionParser::MissingArgument on a missing required option' do
+        expect { described_class.parse([]) }
+          .to raise_error(OptionParser::MissingArgument)
+      end
     end
   end
 end
