@@ -12,6 +12,8 @@ module Webb
     class Github < Base
       DEFAULT_USER = 'JamesWebb'
 
+      REQUIRED_SCOPES = %w[repo read:org]
+
       def search
         search_response = search_via_api
         unless search_response.total_count.positive?
@@ -26,6 +28,7 @@ module Webb
           search_resource resource
         end
       rescue *http_exceptions => e
+        validate_required_scopes! e if e.is_a? Octokit::NotFound
         raise HTTPError, e
       rescue Faraday::ConnectionFailed => e
         raise ConnectionFailed, e
@@ -117,6 +120,13 @@ module Webb
         when :repo then repo_search
         when :namespace then namespace_search
         end
+      end
+
+      def validate_required_scopes! error
+        token_scopes = error.response_headers['x-oauth-scopes'].split ', '
+        missing_scopes = REQUIRED_SCOPES - token_scopes
+
+        raise MissingScopes, missing_scopes unless missing_scopes.empty?
       end
 
       def build_query
