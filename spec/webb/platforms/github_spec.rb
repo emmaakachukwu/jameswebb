@@ -43,12 +43,15 @@ RSpec.describe Webb::Platform::Github do
       end
 
       it 'raises a Webb::MissingCredentials exception when no token is set' do
-        ENV.delete 'WEBB_GITHUB_TOKEN'
+        token_env_var = 'WEBB_GITHUB_TOKEN'
+        token = ENV[token_env_var]
+        ENV.delete token_env_var
         expect { described_class.new(url_path, search_text) }.to raise_error(
           Webb::MissingCredentials,
           "Please provide a private_token for Github user via the `WEBB_GITHUB_TOKEN`\n"\
           "see https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
         )
+        ENV[token_env_var] = token
       end
 
     end
