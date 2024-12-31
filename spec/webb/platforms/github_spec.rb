@@ -1,3 +1,4 @@
+require_relative '../../spec_helper'
 require_relative '../../../lib/webb/platform'
 
 RSpec.describe Webb::Platform::Github do
