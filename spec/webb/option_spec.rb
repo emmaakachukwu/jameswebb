@@ -7,6 +7,7 @@ RSpec.describe Webb::Option do
       '-iv',
       '-t', 'repo',
       '--ref', 'main',
+      '--p', 'github',
       'search text'
     ]
   end
@@ -18,6 +19,7 @@ RSpec.describe Webb::Option do
       '--verbose',
       '--type', 'namespace',
       '--ref', 'dev',
+      '--platform', 'github',
       'search text'
     ]
   end
@@ -32,6 +34,7 @@ RSpec.describe Webb::Option do
         expect(options.type).to eq(:repo)
         expect(options.ref).to eq('main')
         expect(options.verbose).to be true
+        expect(options.platform).to eq('github')
       end
 
       it 'parses long form arguments correctly' do
