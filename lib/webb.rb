@@ -10,7 +10,7 @@ module Webb
       Display.logger.level = log_level options
       search_text = ARGV.first
       uri = options.url
-      host_platform = platform uri.host
+      host_platform = platform(options.platform || platform_from_env || uri.host)
       source_control_object = host_platform.new(
         uri.path,
         search_text,
@@ -30,6 +30,7 @@ module Webb
       case host
       when /github/ then Platform::Github
       when /gitlab/ then Platform::Gitlab
+      else raise UnknownPlatform, host.split('.').first
       end
     end
 
@@ -49,6 +50,10 @@ module Webb
       if options.verbose then Logger::INFO
       else Logger::WARN
       end
+    end
+
+    def platform_from_env
+      ENV['WEBB_PLATFORM']
     end
 
     def handle_error error

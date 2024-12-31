@@ -17,4 +17,16 @@ module Webb
 
   end
 
+  class UnknownPlatform < Error
+    PLATFORMS = %i[github gitlab]
+
+    def initialize platform
+      super "Unknown platform: #{platform}; valid platforms are: #{PLATFORMS.join(', ')}"\
+            "\nThe platform is automatically inferred from the URL"\
+            "\nIf you are using a self hosted server,"\
+            " you can set the platform using the '--platform' option"\
+            " or the 'WEBB_PLATFORM' environment variable"
+    end
+  end
+
 end

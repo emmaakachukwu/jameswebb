@@ -46,6 +46,11 @@ module Webb
             options_hash[:verbose] = verbose
           end
 
+          opts.on('-p PLATFORM', '--platform PLATFORM', String,
+          'select platform to use; default is auto inferred from URL value') do |platform|
+            options_hash[:platform] = platform
+          end
+
         end
       end
 
