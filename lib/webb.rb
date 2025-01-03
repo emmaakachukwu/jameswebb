@@ -20,7 +20,7 @@ module Webb
         ignore_case: options.ignore_case
       )
       results = source_control_object.search
-      display_results results, search_text
+      display_results results, search_text, options.ignore_case
     rescue StandardError, Interrupt => e
       handle_error e
     end
@@ -35,7 +35,7 @@ module Webb
       end
     end
 
-    def display_results results, search_text
+    def display_results results, search_text, ignore_case
       processed_files = []
       results.each do |result|
         unless processed_files.include? result.file
@@ -43,7 +43,7 @@ module Webb
           Display.log "results in #{result.file}"
           processed_files << result.file
         end
-        Display.log "#{result.line}. #{result.content.highlight search_text, 33}"
+        Display.log "#{result.line}. #{result.content.highlight search_text, 33, ignore_case:}"
       end
     end
 
