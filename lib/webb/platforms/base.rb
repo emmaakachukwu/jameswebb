@@ -20,7 +20,7 @@ module Webb
                   :type,
                   :client
 
-      def initialize url_path, search_text, ref: nil, type: nil, ignore_case: nil
+      def initialize(url_path, search_text, ref: nil, type: nil, ignore_case: nil)
         @url_path = strip_slashes url_path
         @repo_path = @url_path
         @search_text = search_text
@@ -36,30 +36,27 @@ module Webb
         nil
       end
 
-      def strip_slashes string
-        string.gsub(/\A\/|\/\z/, '')
+      def strip_slashes(string)
+        string.gsub(%r{\A/|/\z}, '')
       end
 
-      def request path, headers: {}
+      def request(path, headers: {})
         response = client.get(path, headers:)
 
-        unless response.is_a? Net::HTTPSuccess
-          raise HTTPError, "#{url_path}: #{response.message}"
-        end
+        raise HTTPError, "#{url_path}: #{response.message}" unless response.is_a? Net::HTTPSuccess
 
         JSON.parse response.body, symbolize_names: true
       rescue JSON::ParserError
         response.body
       end
 
-      def relative_path file_path
+      def relative_path(file_path)
         "#{repo_path}/#{file_path}".delete_prefix("#{url_path}/")
       end
 
-      def valid_uri? uri
+      def valid_uri?(uri)
         uri.match? URI::DEFAULT_PARSER.make_regexp
       end
-
     end
   end
 end

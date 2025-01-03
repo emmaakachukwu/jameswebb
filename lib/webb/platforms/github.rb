@@ -10,15 +10,15 @@ end
 module Webb
   module Platform
     class Github < Base
-      DEFAULT_USER = 'JamesWebb'
+      DEFAULT_USER = 'JamesWebb'.freeze
 
-      REQUIRED_SCOPES = %w[repo read:org]
+      REQUIRED_SCOPES = %w[repo read:org].freeze
 
       def search
         search_response = search_via_api
         unless search_response.total_count.positive?
-          Display.info "Code in #{url_path} has probably not been indexed;"\
-                     " starting a manual search"
+          Display.info "Code in #{url_path} has probably not been indexed;  " \
+                       'starting a manual search'
 
           return search_off_api
         end
@@ -45,20 +45,18 @@ module Webb
       end
 
       def access_token
-        token = ENV['WEBB_GITHUB_TOKEN']
+        token = ENV.fetch('WEBB_GITHUB_TOKEN', nil)
         return token if token
 
         raise MissingCredentials,
-          "Please provide a private_token for Github user via the `WEBB_GITHUB_TOKEN`\n"\
-          "see https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+              "Please provide a private_token for Github user via the `WEBB_GITHUB_TOKEN`\n" \
+              'see https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens'
       end
 
       def api_endpoint
         env_var = 'WEBB_GITHUB_ENDPOINT'
-        api_url = ENV[env_var]
-        unless api_url.nil? || valid_uri?(api_url)
-          raise InvalidArgument, "'#{env_var}' value is not a valid URL"
-        end
+        api_url = ENV.fetch(env_var, nil)
+        raise InvalidArgument, "'#{env_var}' value is not a valid URL" unless api_url.nil? || valid_uri?(api_url)
 
         api_url
       end
@@ -90,23 +88,27 @@ module Webb
         []
       end
 
-      def file_content file_sha
+      def file_content(file_sha)
         blob = client.blob(repo_path, file_sha)
         Base64.decode64(blob.content)
       end
 
-      def search_resource resource
+      def search_resource(resource)
         Display.info "Searching for `#{search_text}` in #{repo_path}/#{ref}:#{resource.path}"
 
         file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
-          content_case, text_case = ignore_case ?
-            [content.downcase, search_text.downcase] :
-            [content, search_text]
-          SearchResult.new(
-            line:,
-            content:,
-            file: relative_path(resource.path)
-          ) if content_case.include? text_case
+          content_case, text_case = if ignore_case
+                                      [content.downcase, search_text.downcase]
+                                    else
+                                      [content, search_text]
+                                    end
+          if content_case.include? text_case
+            SearchResult.new(
+              line:,
+              content:,
+              file: relative_path(resource.path)
+            )
+          end
         end
       end
 
@@ -122,7 +124,7 @@ module Webb
         end
       end
 
-      def validate_required_scopes! error
+      def validate_required_scopes!(error)
         token_scopes = error.response_headers['x-oauth-scopes'].split ', '
         missing_scopes = REQUIRED_SCOPES - token_scopes
 
@@ -139,7 +141,6 @@ module Webb
       def http_exceptions
         [Octokit::Error]
       end
-
     end
   end
 end

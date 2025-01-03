@@ -28,9 +28,6 @@ RSpec.describe Webb::Platform::Github do
         expect(client.type).to eq(:namespace)
         expect(client.ignore_case).to be true
       end
-
     end
-
   end
-
 end

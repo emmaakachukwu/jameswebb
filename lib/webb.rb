@@ -27,7 +27,7 @@ module Webb
 
     private
 
-    def platform host
+    def platform(host)
       case host
       when /github/ then Platform::Github
       when /gitlab/ then Platform::Gitlab
@@ -35,7 +35,7 @@ module Webb
       end
     end
 
-    def display_results results, search_text, ignore_case
+    def display_results(results, search_text, ignore_case)
       processed_files = []
       results.each do |result|
         unless processed_files.include? result.file
@@ -47,21 +47,23 @@ module Webb
       end
     end
 
-    def log_level options
-      if options.verbose then Logger::INFO
-      else Logger::WARN
+    def log_level(options)
+      if options.verbose
+        Logger::INFO
+      else
+        Logger::WARN
       end
     end
 
     def platform_from_env
-      ENV['WEBB_PLATFORM']
+      ENV.fetch('WEBB_PLATFORM', nil)
     end
 
-    def handle_error error
+    def handle_error(error)
       case error
       when Interrupt then abort 'Process interrupted; stopping gracefully'
       when Webb::Error then abort error.message
-      when OptionParser::ParseError then
+      when OptionParser::ParseError
         Display.error error.message
         abort `webb --help`
       else raise error

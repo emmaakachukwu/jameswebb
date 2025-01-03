@@ -16,7 +16,7 @@ RSpec.describe Webb::Platform::Github do
         expect(github.client).to be_a(Octokit::Client)
       end
 
-      it "uses the right endpoint when endpoint is set" do
+      it 'uses the right endpoint when endpoint is set' do
         endpoint = 'https://api.example.com/'
         ENV[api_env_var] = endpoint
         github = described_class.new(url_path, search_text)
@@ -39,24 +39,23 @@ RSpec.describe Webb::Platform::Github do
       it 'raises a Webb::InvalidArgument exception when endpoint URL is invalid' do
         ENV[api_env_var] = 'endpoint'
         expect { described_class.new(url_path, search_text) }.to raise_error(
-          Webb::InvalidArgument, "'WEBB_GITHUB_ENDPOINT' value is not a valid URL")
+          Webb::InvalidArgument, "'WEBB_GITHUB_ENDPOINT' value is not a valid URL"
+        )
         ENV.delete api_env_var
       end
 
       it 'raises a Webb::MissingCredentials exception when no token is set' do
         token_env_var = 'WEBB_GITHUB_TOKEN'
-        token = ENV[token_env_var]
+        token = ENV.fetch(token_env_var, nil)
         ENV.delete token_env_var
         expect { described_class.new(url_path, search_text) }.to raise_error(
           Webb::MissingCredentials,
-          "Please provide a private_token for Github user via the `WEBB_GITHUB_TOKEN`\n"\
-          "see https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+          "Please provide a private_token for Github user via the `WEBB_GITHUB_TOKEN`\n" \
+          'see https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens'
         )
         ENV[token_env_var] = token
       end
-
     end
-
   end
 
   describe '#search' do
@@ -85,7 +84,6 @@ RSpec.describe Webb::Platform::Github do
 
         expect { github.search }.to raise_error(Webb::HTTPError)
       end
-
     end
 
     context 'searching through a namespace' do

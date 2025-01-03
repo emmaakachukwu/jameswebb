@@ -13,10 +13,10 @@ RSpec.describe Webb::Platform::Gitlab do
     context 'creating a gitlab client' do
       it 'uses a Gitlab client' do
         gitlab = described_class.new(url_path, search_text)
-        expect(gitlab.client).to be_a(::Gitlab::Client)
+        expect(gitlab.client).to be_a(Gitlab::Client)
       end
 
-      it "uses the right endpoint when endpoint is set" do
+      it 'uses the right endpoint when endpoint is set' do
         endpoint = 'https://example.com'
         ENV[api_env_var] = endpoint
         gitlab = described_class.new(url_path, search_text)
@@ -33,24 +33,23 @@ RSpec.describe Webb::Platform::Gitlab do
       it 'raises a Webb::InvalidArgument exception when endpoint URL is invalid' do
         ENV[api_env_var] = 'endpoint'
         expect { described_class.new(url_path, search_text) }.to raise_error(
-          Webb::InvalidArgument, "'WEBB_GITLAB_ENDPOINT' value is not a valid URL")
+          Webb::InvalidArgument, "'WEBB_GITLAB_ENDPOINT' value is not a valid URL"
+        )
         ENV.delete api_env_var
       end
 
       it 'raises a Webb::MissingCredentials exception when no token is set' do
         token_env_var = 'WEBB_GITLAB_TOKEN'
-        token = ENV[token_env_var]
+        token = ENV.fetch(token_env_var, nil)
         ENV.delete token_env_var
         expect { described_class.new(url_path, search_text) }.to raise_error(
           Webb::MissingCredentials,
-          "Please provide a private_token for Gitlab user via the `WEBB_GITLAB_TOKEN`\n"\
-          "see https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token"
+          "Please provide a private_token for Gitlab user via the `WEBB_GITLAB_TOKEN`\n" \
+          'see https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token'
         )
         ENV[token_env_var] = token
       end
-
     end
-
   end
 
   describe '#search' do
@@ -79,7 +78,6 @@ RSpec.describe Webb::Platform::Gitlab do
 
         expect { gitlab.search }.to raise_error(Webb::HTTPError)
       end
-
     end
 
     context 'searching through a namespace' do
@@ -104,9 +102,6 @@ RSpec.describe Webb::Platform::Gitlab do
         expect(results).to be_a(Array)
         expect(results).to be_empty
       end
-
     end
-
   end
-
 end

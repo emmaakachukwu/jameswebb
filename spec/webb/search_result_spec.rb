@@ -15,7 +15,5 @@ RSpec.describe Webb::SearchResult do
       expect(search_result.file).to eq('foo/bar.xyz')
       expect(search_result.content).to eq('Lorem ipsum dolor sit amet')
     end
-
   end
-
 end

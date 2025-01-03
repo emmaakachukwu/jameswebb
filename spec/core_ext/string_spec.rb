@@ -13,7 +13,6 @@ RSpec.describe String do
           '"Lorem Ipsum dolor sit amet. \e[33mlorem ipsum\e[0m dolor sit amet"'
         )
       end
-
     end
 
     context 'case insensitive search' do
@@ -25,7 +24,5 @@ RSpec.describe String do
         )
       end
     end
-
   end
-
 end
