@@ -2,6 +2,7 @@ require_relative 'webb/option'
 require_relative 'webb/platform'
 require_relative 'webb/display'
 require_relative 'webb/error'
+require_relative 'core_ext/string'
 
 module Webb
   class << self
@@ -19,7 +20,7 @@ module Webb
         ignore_case: options.ignore_case
       )
       results = source_control_object.search
-      display_results results
+      display_results results, search_text
     rescue StandardError, Interrupt => e
       handle_error e
     end
@@ -34,7 +35,7 @@ module Webb
       end
     end
 
-    def display_results results
+    def display_results results, search_text
       processed_files = []
       results.each do |result|
         unless processed_files.include? result.file
@@ -42,7 +43,7 @@ module Webb
           Display.log "results in #{result.file}"
           processed_files << result.file
         end
-        Display.log "#{result.line}. #{result.content}"
+        Display.log "#{result.line}. #{result.content.highlight search_text, 33}"
       end
     end
 
