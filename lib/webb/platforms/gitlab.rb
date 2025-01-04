@@ -5,6 +5,10 @@ Gitlab::ObjectifiedHash.class_eval do
   def file?
     type == 'blob'
   end
+
+  def file_ref
+    path
+  end
 end
 
 module Webb
@@ -73,16 +77,6 @@ module Webb
         Base64.decode64(file.content)
       end
 
-      def search_resource(resource)
-        Display.info "Searching for `#{search_text}` in #{repo_path}/#{ref}:#{resource.path}"
-
-        file_content(resource.path).each_line.filter_map.with_index(1) do |content, line|
-          next unless text_matches? content
-
-          build_search_result(line, content, resource.path)
-        end
-      end
-
       def search_via_api
         Display.info "Fetching matching files in #{url_path}"
 
@@ -118,16 +112,6 @@ module Webb
         resource_project = project(resource.project_id)
         @repo_path = resource_project.path_with_namespace
         @ref = resource_project.default_branch
-      end
-
-      def text_matches?(text)
-        text_case = ignore_case ? text.downcase : text
-        search_text_case = ignore_case ? search_text.downcase : search_text
-        text_case.include?(search_text_case)
-      end
-
-      def build_search_result(line, content, file_path)
-        SearchResult.new(line:, content:, file: relative_path(file_path))
       end
 
       def http_exceptions

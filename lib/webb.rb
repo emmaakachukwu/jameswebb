@@ -8,17 +8,10 @@ module Webb
   class << self
     def run
       options = Option.parse ARGV
-      Display.logger.level = log_level options
+      configure_logging options
       search_text = ARGV.first
-      uri = options.url
-      host_platform = platform(options.platform || platform_from_env || uri.host)
-      source_control_object = host_platform.new(
-        uri.path,
-        search_text,
-        ref: options.ref,
-        type: options.type,
-        ignore_case: options.ignore_case
-      )
+      host_platform = resolve_host_platform options
+      source_control_object = build_source_control_object host_platform, options, search_text
       results = source_control_object.search
       display_results results, search_text, options.ignore_case
     rescue StandardError, Interrupt => e
@@ -26,6 +19,10 @@ module Webb
     end
 
     private
+
+    def resolve_host_platform(options)
+      platform(options.platform || platform_from_env || options.url.host)
+    end
 
     def platform(host)
       case host
@@ -47,6 +44,10 @@ module Webb
       end
     end
 
+    def configure_logging(options)
+      Display.logger.level = log_level options
+    end
+
     def log_level(options)
       if options.verbose
         Logger::INFO
@@ -57,6 +58,16 @@ module Webb
 
     def platform_from_env
       ENV.fetch('WEBB_PLATFORM', nil)
+    end
+
+    def build_source_control_object(host_platform, options, search_text)
+      host_platform.new(
+        options.url.path,
+        search_text,
+        ref: options.ref,
+        type: options.type,
+        ignore_case: options.ignore_case
+      )
     end
 
     def handle_error(error)

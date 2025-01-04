@@ -18,6 +18,10 @@ module Webb
 
         super
       end
+
+      def respond_to_missing?(method_name, *)
+        logger.respond_to?(method_name) || super
+      end
     end
   end
 end

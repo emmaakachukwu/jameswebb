@@ -17,6 +17,7 @@ module Webb
 
       private
 
+      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def parser(options_hash)
         OptionParser.new do |opts|
           opts.banner = 'Usage: webb [args] <search text>'
@@ -52,6 +53,7 @@ module Webb
           end
         end
       end
+      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def validate_required(options)
         missing = REQUIRED_OPTIONS - options.keys
@@ -66,8 +68,10 @@ module Webb
       end
     end
 
+    # rubocop:disable Style/MissingRespondToMissing
     def method_missing _method_name, *_args
       nil
     end
+    # rubocop:enable Style/MissingRespondToMissing
   end
 end

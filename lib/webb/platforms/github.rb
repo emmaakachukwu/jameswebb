@@ -2,8 +2,12 @@ require 'octokit'
 require 'base64'
 
 Sawyer::Resource.class_eval do
-  def is_file?
+  def file?
     type == 'blob'
+  end
+
+  def file_ref
+    sha
   end
 end
 
@@ -16,20 +20,11 @@ module Webb
 
       def search
         search_response = search_via_api
-        unless search_response.total_count.positive?
-          Display.info "Code in #{url_path} has probably not been indexed;  " \
-                       'starting a manual search'
+        return handle_unindexed_code if search_response.total_count.zero?
 
-          return search_off_api
-        end
-
-        search_response.items.flat_map do |resource|
-          @repo_path = resource.repository.full_name
-          search_resource resource
-        end
-      rescue *http_exceptions => e
-        validate_required_scopes! e if e.is_a? Octokit::NotFound
-        raise HTTPError, e
+        search_response.items.flat_map { |resource| process_resource(resource) }
+      rescue Octokit::Error => e
+        handle_error e
       rescue Faraday::ConnectionFailed => e
         raise ConnectionFailed, e
       end
@@ -63,8 +58,7 @@ module Webb
 
       def namespace_search
         namespace_repos.flat_map do |repository|
-          @repo_path = repository.full_name
-          @ref = repository.default_branch
+          update_repo_context repository
           repo_search
         end
       end
@@ -82,7 +76,7 @@ module Webb
         Display.info "Fetching files in repository: #{repo_path}/#{ref}"
 
         tree = client.tree(repo_path, ref, recursive: true)
-        tree.tree.select(&:is_file?)
+        tree.tree.select(&:file?)
       rescue Octokit::Conflict
         Display.info "#{repo_path}/#{ref} is empty; skipping"
         []
@@ -91,25 +85,6 @@ module Webb
       def file_content(file_sha)
         blob = client.blob(repo_path, file_sha)
         Base64.decode64(blob.content)
-      end
-
-      def search_resource(resource)
-        Display.info "Searching for `#{search_text}` in #{repo_path}/#{ref}:#{resource.path}"
-
-        file_content(resource.sha).each_line.filter_map.with_index(1) do |content, line|
-          content_case, text_case = if ignore_case
-                                      [content.downcase, search_text.downcase]
-                                    else
-                                      [content, search_text]
-                                    end
-          if content_case.include? text_case
-            SearchResult.new(
-              line:,
-              content:,
-              file: relative_path(resource.path)
-            )
-          end
-        end
       end
 
       def search_via_api
@@ -122,6 +97,21 @@ module Webb
         when :repo then repo_search
         when :namespace then namespace_search
         end
+      end
+
+      def handle_unindexed_code
+        Display.info "Code in #{url_path} has probably not been indexed; starting a manual search"
+        search_off_api
+      end
+
+      def process_resource(resource)
+        update_repo_context(resource.repository)
+        search_resource(resource)
+      end
+
+      def update_repo_context(repository)
+        @repo_path = repository.full_name
+        @ref = repository.default_branch unless repository.default_branch.nil?
       end
 
       def validate_required_scopes!(error)
@@ -138,8 +128,9 @@ module Webb
         "#{query}:#{repo_path}"
       end
 
-      def http_exceptions
-        [Octokit::Error]
+      def handle_error(error)
+        validate_required_scopes! error if error.is_a? Octokit::NotFound
+        raise HTTPError, error
       end
     end
   end
