@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo "Running RuboCop for linting..."
+if ! bundle exec rubocop; then
+  echo "RuboCop linting failed. Please fix the above issues before committing."
+  exit 1
+fi
+
+# echo "Running tests..."
+# if ! bundle exec rspec; then
+#   echo "Tests failed. Please fix the above issues before committing."
+#   exit 1
+# fi
+
+echo "All checks passed! Proceeding with commit."
+exit 0
